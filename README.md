@@ -27,3 +27,37 @@ Database: SQLite with SQLAlchemy ORM
 Frontend: JavaScript (Fetch API), HTML5, CSS3 (Custom Theme)
 
 Infrastructure: Railway (Cloud Hosting), GitHub (Version Control)
+
+
+
+📂 Project Structure
+Plaintext
+/ai-ticketing-system
+  ├── main.py            # FastAPI application entry point & routes
+  ├── ai_engine.py       # Gemini AI prompt engineering & integration
+  ├── database.py        # SQLAlchemy engine & session configuration
+  ├── models.py          # Database schemas for Tickets & Employees
+  ├── requirements.txt   # Project dependencies
+  ├── runtime.txt        # Environment specification for Railway
+  └── templates/         
+       └── index.html    # Single-page application frontend
+⚙️ Installation & Local Setup
+Clone the Repository:
+
+Bash
+git clone https://github.com/manishamindala/ai-ticketing-system.git
+cd ai-ticketing-system
+Environment Setup:
+Create a .env file in the root directory:
+
+Bash
+GEMINI_API_KEY='your_api_key_here'
+Install Dependencies:
+
+Bash
+pip install -r requirements.txt
+Run Locally:
+
+Bash
+python main.py
+The application will be available at http://127.0.0.1:8000.
