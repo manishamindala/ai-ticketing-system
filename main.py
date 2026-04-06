@@ -7,8 +7,7 @@ import models, ai_engine, database
 
 app = FastAPI()
 
-# --- RENDER PATH FIX ---
-# Ensures Render finds the 'templates' folder regardless of the environment
+# --- PATH CONFIG ---
 base_dir = os.path.dirname(os.path.realpath(__file__))
 template_path = os.path.join(base_dir, "templates")
 templates = Jinja2Templates(directory=template_path)
@@ -32,11 +31,10 @@ def seed_data():
 
 @app.get("/")
 async def home(request: Request):
-    # VERSION FIX: Pass 'request' as the first positional argument
-    # to satisfy the specific Starlette version on Render
+    # This format is the most stable across all FastAPI/Starlette versions
     return templates.TemplateResponse(
-        request,
-        "index.html",
+        request, 
+        "index.html", 
         {"request": request}
     )
 
@@ -68,6 +66,5 @@ async def create_ticket(title: str, description: str, db: Session = Depends(data
 
 # --- SERVER STARTUP ---
 if __name__ == "__main__":
-    # Get the port from Render (defaults to 8000 for local testing)
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
