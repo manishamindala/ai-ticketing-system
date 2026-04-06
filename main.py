@@ -8,7 +8,7 @@ import models, ai_engine, database
 app = FastAPI()
 
 # --- RENDER PATH FIX ---
-# This ensures Render finds the 'templates' folder regardless of where it starts the script
+# This ensures Render finds the 'templates' folder regardless of the environment
 base_dir = os.path.dirname(os.path.realpath(__file__))
 template_path = os.path.join(base_dir, "templates")
 templates = Jinja2Templates(directory=template_path)
@@ -19,7 +19,7 @@ models.Base.metadata.create_all(bind=database.engine)
 @app.on_event("startup")
 def seed_data():
     db = database.SessionLocal()
-    # Check if employees exist, if not, add them for the demo
+    # Seed initial employees if the database is empty
     if db.query(models.Employee).count() == 0:
         employees = [
             models.Employee(name="Manish", department="Engineering", skills="Server, DB", current_load=0),
@@ -32,7 +32,8 @@ def seed_data():
 
 @app.get("/")
 async def home(request: Request):
-    # Explicitly define the context dictionary
+    # CRITICAL FIX for Starlette 1.0.0+ / Python 3.14+
+    # We use explicit keywords 'name' and 'context' to avoid the Internal Server Error
     return templates.TemplateResponse(
         name="index.html", 
         context={"request": request}
@@ -52,7 +53,7 @@ async def create_ticket(title: str, description: str, db: Session = Depends(data
         ai_summary=analysis.get('ai_summary', 'No summary available')
     )
     
-    # 3. Smart Routing Logic based on AI suggested tag
+    # 3. Smart Routing Logic
     tag = analysis.get('suggested_tag', '')
     emp = db.query(models.Employee).filter(models.Employee.skills.contains(tag)).order_by(models.Employee.current_load.asc()).first()
     
@@ -64,9 +65,9 @@ async def create_ticket(title: str, description: str, db: Session = Depends(data
     db.commit()
     return {"analysis": analysis}
 
-# --- RENDER DEPLOYMENT BLOCK ---
+# --- SERVER STARTUP ---
 if __name__ == "__main__":
-    # Render provides the PORT environment variable automatically
+    # Get the port from Render (defaults to 8000 for local testing)
     port = int(os.environ.get("PORT", 8000))
-    # Note: We use "main:app" as a string to avoid import issues on some Linux environments
+    # We use uvicorn to run the app
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
