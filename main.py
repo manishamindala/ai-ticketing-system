@@ -32,7 +32,11 @@ def seed_data():
 
 @app.get("/")
 async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    # Explicitly define the context dictionary
+    return templates.TemplateResponse(
+        name="index.html", 
+        context={"request": request}
+    )
 
 @app.post("/submit-ticket/")
 async def create_ticket(title: str, description: str, db: Session = Depends(database.get_db)):
